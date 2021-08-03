@@ -7,6 +7,7 @@ Created on Tue Aug  3 10:01:02 2021
 Modul containing Classes and functions for retail Data analysis
 """
 import datetime as d                        # datetime for analyses over course of the year
+import numpy as np
 import pickle as p                          # pickle for data saving
 
 
@@ -20,7 +21,7 @@ class customer:
     Requires to initialize:
         ID       - differentiate a customer, used to assign future purchases to this customer
         location - home country of customer, currently not used in analysis as UK is heavily overrepresented
-    
+
     it features:
         invoice_L   - List with elements being of the "invoice" class
         invoice_id  - List with elements being of type string, used to keep track which invoice is already assigned to this customer
@@ -50,10 +51,10 @@ class customer:
 
 class invoice:
     '''Class defining an individual purchase, tracking invoice, date, product and price.
-    Requires to initialize: 
+    Requires to initialize:
         ID          - differentiate an invoice, used to assign future purchases to this invoice
         date        - Time of purchase; Further studies require that the first part is given as "YYYY-MM-DD", it may contain a daytime as well, but is not required with the current usage of this class
-        
+
     it features the following characteristics:
         product_L   - List storing all products by name
         price_L     - List storing the price of the individual products
@@ -70,7 +71,7 @@ class invoice:
     def add_product(self, product, price, quantity):
         '''Add a product to an invoice. In this current version, only positive sales are stored.
             A product that has either a negative or no value will be ignored for consistency reasons.'''
-        price=float(price) 
+        price=float(price)
         if float(price)>0:
             self.product_L.append(product)
             self.price_L.append(price)
@@ -81,9 +82,9 @@ class invoice:
 def next_quartal(date1,date2):
     '''Function to determine if date2 is in the next quartal to date1
     Input is 2 date strings given for examples as objects in invoice.date
-    
+
     Return is a bolean that determines if date2 is in the quartal following date1.'''
-    
+
     # determine the month and the year for both dates, this is done with the datetime module
     date1=d.date.fromisoformat(date1.split()[0])
     date2=d.date.fromisoformat(date2.split()[0])
@@ -132,15 +133,15 @@ def Sort(sub_li):
 
 def cut_waste(word):
     '''Cut useless characters at the beginning and end of a word
-    word is given in string format. Removes the followinng characters from the beginning or end of the word:  ', "-#!§$%&/()[]{}\+~><|_:;=?-.*   
-    if they are present in the middle of the word, they are ignored. 
+    word is given in string format. Removes the followinng characters from the beginning or end of the word:  ', "-#!§$%&/()[]{}\+~><|_:;=?-.*
+    if they are present in the middle of the word, they are ignored.
     The process is repeated, as long as respective characters are still present on either end.'''
 
     tocut=', "-#!§$%&/()[]{}\+~><|_:;=?-.*'
     tocut+="'"
     while word[0] in tocut:
         word=word[1:]
-        # to prevent an error, if the word only contained removable characters, 
+        # to prevent an error, if the word only contained removable characters,
         # should the length reach 0, it is returned and the loop interrupted.
         if len(word)==0:
             return word
@@ -155,20 +156,26 @@ def search_basket(prod, basket='basket.p'):
     Also provides the total number of purchases for statistical reference.
     requires a pickled dictionary with product names and a 2D array with all products.
     Total number of products sold is stored on main diagonal as a negative.
-    
+
     Input:
         prod        - STRING: name of the product in prod_names list
-        basket      - STRING: Name of basket file
+        basket      - STRING: Name of basket file, must be a pickled file
+
+    Output:
+        results: - LIST, 5*2
+            the top 5 products, providing name and correlation percentage
+        freq:    - FLOAT
+            Total amount of invoices containing the given product
         '''
-        
+
     basket=p.load( open( basket, "rb" ))    # open filled basket
     prod_names=list(basket.keys())          # read prod names out of zipped dictionary
-    curr_line=basket[prod]             # get correct line based on product
+    curr_line=basket[prod]                  # get correct line based on product
     # build a list of recommondations
-    results=[[prod_names[i],curr_line[i]] for i in range(len(prod_names))]
+    results=[[prod_names[i],100*curr_line[i]] for i in range(len(prod_names))]
     # sort the list by frequency
     results=Sort(results)
     # get total amount the product was purchased out of list
-    freq=-curr_line[prod_names.index(prod)]    
+    freq=-np.min(curr_line)
     # return the top five correspondance
     return results[-5:], freq

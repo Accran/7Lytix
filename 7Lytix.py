@@ -36,7 +36,7 @@ customer_L=[]
 # going threw all purchases
 for line in data[1:]:
     curr_cust_id=line[-2]
-    
+
     # as the length of list entries dedicated to product name might change, some parts of the list have to be taken from the backend of the line
     current = invoice(line[0], line[-4]) # build current invoice
     productL=line[2:len(line)-5] # find all lines that make up the product name
@@ -91,10 +91,10 @@ for line in data[1:]:
     i=-4
     # get current date
     a=line[i].split()  # date includes daytime, only day is required
-    tcurr=d.date.fromisoformat(a[0]) 
+    tcurr=d.date.fromisoformat(a[0])
     price=float(line[i+1])
     # as before, either append (increase) price for the correct date or append a new entry if day was not yet coverd
-    if tcurr in tL: 
+    if tcurr in tL:
         j=tL.index(tcurr)
         inL[j]+=price
     else:
@@ -147,8 +147,8 @@ month_weeks.append(month_weeks[0]+52)
 
 #create a periodic Cubic spline
 fit=CubicSpline(month_weeks,monthly_mean, bc_type='periodic')
-# plot the expected income of each day, 
-# to get the expected income of a given week, sum over all days 
+# plot the expected income of each day,
+# to get the expected income of a given week, sum over all days
 # remember, that if day1= k in Z, than the next days are all in intervalls of 1/8
 days=np.linspace(0,weeks[-1]+3,365)
 plt.plot(days, fit(days),linewidth=5, label='Continous Model')
@@ -165,7 +165,7 @@ plt.clf() # reset figure
 
 ''' --------------------- TASK 2------------------------'''
 print('============== START TASK 2 ===================')
-# customers are sorted into two groups, 
+# customers are sorted into two groups,
 # those that return the next quarter after a purchase
 # and those who either skipped at least one quarter or did not return an all
 # in addition, two sets of lists are created
@@ -182,7 +182,7 @@ for cust in customer_L:
     # go over all invoices of the current customer
     for i in range(len(cust.invoice_L)-1):
         date1=cust.invoice_L[i].date # date of the current invoice
-        
+
         # check if the invoice is not on the same day as the previous
         if date1==curr_day:
             date_append=False
@@ -263,7 +263,7 @@ print('Sorting by individual words')
 # start a list for words
 words=[]
 
-# go over all products and 
+# go over all products and
 for name in prod_names:
     for word in name.split():
         if (word not in words) and (len(word)>2):
@@ -280,7 +280,7 @@ for product in words:
             ratio+=line[2]*line[1]
     if sum!=0:
         ratio/=sum
-    else: 
+    else:
         ratio=0
     ratio_per_type.append([product, sum, ratio])
 ratio_per_type=Sort(ratio_per_type)
@@ -320,11 +320,11 @@ for i in range(1,53,4):
         no+=not_q_date.count(i+j)
     monthly_ratio.append(100*yes/(yes+no))
     abs_counts.append(yes/4) # absolute count is divided by four to account for four weeks
-    
-    
-    
+
+
+
 # for both sets, fit spline and create plots
-    
+
 plt.figure(figsize = [10,8])
 weeks.append(weeks[-1]+4)
 monthly_ratio.append(monthly_ratio[0])
@@ -402,14 +402,14 @@ for i in range(n_prods):
             basket[i,j]=together/all_p
     # store the total number this product was bought
     basket[i,i]=-all_p # negative so it will always be lowest number
-    
+
     # keeping track of progress and creating back up saves
     if i/n_prods>threshhold:
-        print(100* i/n_prods, '% completed')
+        print(int(100* i/n_prods), '% completed')
         p.dump( basket, open( "provi_basket.p", "wb" ) )
         t_now=time.time()
         t_diff=t_now-t_start
-        print('First Percent took', t_diff, 'Seconds=', t_diff/60, 'Minutes')
+        print('Calculation took', t_diff, 'Seconds=', t_diff/60, 'Minutes')
         threshhold+=0.01
 
 # save all via pickle
